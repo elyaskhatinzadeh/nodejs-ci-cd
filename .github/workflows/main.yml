@@ -14,10 +14,13 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '16'
-          
-      - name: Build and push Docker image
+
+      - name: Build  Docker image
         run: |
           docker build -t nodejs-ci-cd .
           docker tag nodejs-ci-cd:latest ${{ secrets.DOCKER_REPO_URL }}/nodejs-ci-cd:latest
+
+      - name: Push Docker image
+        run: |
           docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
           docker push ${{ secrets.DOCKER_REPO_URL }}/nodejs-ci-cd:latest
