@@ -11,10 +11,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '16'
+#      - name: Set up Node.js
+#        uses: actions/setup-node@v3
+#        with:
+#          node-version: '16'
+
       - name: Build and push Docker image
         run: |
           docker build -t dummy-server .
@@ -23,3 +24,13 @@ jobs:
           docker push ${{ secrets.DOCKER_REPO_URL }}/dummy-server:latest
           docker images   # Output Docker images for verification
           docker logout    # Logout to clear Docker credentials
+
+      - name: Deploy to VPS
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          password: ${{ secrets.VPS_PASSWORD }}
+          script: |
+            sudo docker pull docker.io/amin166/dummy-server:latest
+            sudo docker run -d -p 3000:3000 amin166/dummy-server:latest

@@ -7,6 +7,10 @@ app.get('/', (req, res) => {
     res.json({ message: 'Hello, welcome to the Node.js API!' });
 });
 
+app.get('/home', (req, res) => {
+    res.json({ message: 'HOME!' });
+});
+
 // Start the server
 app.listen(port, () => {
     console.log(`Server is running at http://localhost:${port}`);
