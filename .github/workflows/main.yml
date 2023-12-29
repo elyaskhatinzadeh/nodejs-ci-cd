@@ -25,6 +25,20 @@ jobs:
           docker images   # Output Docker images for verification
           docker logout    # Logout to clear Docker credentials
 
+      - name: Stop and Remove Existing Container on VPS
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          password: ${{ secrets.VPS_PASSWORD }}
+          script: |
+            # Find and stop the container using port 3000
+            existing_container_id=$(sudo docker ps -q --filter "publish=3000")
+            if [ -n "$existing_container_id" ]; then
+              sudo docker stop $existing_container_id
+              sudo docker rm $existing_container_id
+            fi
+
       - name: Deploy to VPS
         uses: appleboy/ssh-action@master
         with:
