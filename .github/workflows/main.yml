@@ -11,18 +11,16 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-#      - name: Set up Node.js
-#        uses: actions/setup-node@v3
-#        with:
-#          node-version: '16'
-
-      - name: Build and push Docker image
+      - name: Build Docker image
         run: |
           docker build -t dummy-server .
-          docker tag dummy-server:latest ghcr.io/${{ github.repository }}/dummy-server:latest
+          docker tag dummy-server:latest ${{ secrets.DOCKER_REPO_URL }}/dummy-server:latest
+
+      - name: Push Docker image to GitHub Container Registry
+        run: |
           echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.repository_owner }} --password-stdin
-          docker build -t ghcr.io/${{ github.repository }}/dummy-server:latest .
-          docker push ghcr.io/${{ github.repository }}/dummy-server:latest
+          docker build -t ghcr.io/${{ github.repository }}:latest .
+          docker push ghcr.io/${{ github.repository }}:latest
 
       - name: Stop and Remove Existing Container on VPS
         uses: appleboy/ssh-action@master
@@ -45,5 +43,5 @@ jobs:
           username: ${{ secrets.VPS_USERNAME }}
           password: ${{ secrets.VPS_PASSWORD }}
           script: |
-            sudo docker pull docker.io/amin166/dummy-server:latest
-            sudo docker run -d -p 3000:3000 amin166/dummy-server:latest
+            sudo docker pull ghcr.io/${{ github.repository }}:latest
+            sudo docker run -d -p 3000:3000 ghcr.io/${{ github.repository }}:latest
