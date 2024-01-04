@@ -48,5 +48,6 @@ jobs:
           username: ${{ secrets.VPS_USERNAME }}
           password: ${{ secrets.VPS_PASSWORD }}
           script: |
+            docker login ghcr.io -u ${{github.repository_owner}}  -p ${{secrets.YOUR_PERSONAL_ACCESS_TOKEN}} 
             sudo docker pull ghcr.io/${{ github.repository }}:latest
             sudo docker run -d -p 3000:3000 ghcr.io/${{ github.repository }}:latest
