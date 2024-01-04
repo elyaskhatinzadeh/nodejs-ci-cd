@@ -19,7 +19,7 @@ jobs:
       - name: Build and push Docker image
         run: |
           docker build -t dummy-server .
-          docker tag dummy-server:latest ${{ secrets.DOCKER_REPO_URL }}/dummy-server:latest
+          docker tag dummy-server:latest ghcr.io/${{ github.repository }}/dummy-server:latest
           echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.repository_owner }} --password-stdin
           docker build -t ghcr.io/${{ github.repository }}/dummy-server:latest .
           docker push ghcr.io/${{ github.repository }}/dummy-server:latest
