@@ -1,46 +1,50 @@
-name: Deploy to EC2
+name: Deploy Images to GHCR
+
 on:
   push:
     branches:
       - main
+  workflow_dispatch:
+
 jobs:
-  deploy:
+  push-store-image:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - name: 'Checkout GitHub Action'
+        uses: actions/checkout@main
 
-      - name: Build Docker image
-        run: |
-          docker build -t dummy-server .
-          docker tag dummy-server:latest ${{ secrets.DOCKER_REPO_URL }}/dummy-server:latest
-
-      - name: Push Docker image to GitHub Container Registry
-        run: |
-          echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.repository_owner }} --password-stdin
-          docker push ghcr.io/${{ github.repository }}:latest
-
-      - name: Stop and Remove Existing Container on VPS
-        uses: appleboy/ssh-action@master
+      - name: 'Login to GitHub Container Registry'
+        uses: docker/login-action@v1
         with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USERNAME }}
-          password: ${{ secrets.VPS_PASSWORD }}
-          script: |
-            # Find and stop the container using port 3000
-            existing_container_id=$(sudo docker ps -q --filter "publish=3000")
-            if [ -n "$existing_container_id" ]; then
-              sudo docker stop $existing_container_id
-              sudo docker rm $existing_container_id
-            fi
+          registry: ghcr.io
+          username: ${{github.actor}}
+          password: ${{secrets.GITHUB_TOKEN}}
 
-      - name: Deploy to VPS
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USERNAME }}
-          password: ${{ secrets.VPS_PASSWORD }}
-          script: |
-            sudo docker pull ghcr.io/${{ github.repository }}:latest
-            sudo docker run -d -p 3000:3000 ghcr.io/${{ github.repository }}:latest
+      - name: 'Build Inventory Image'
+        run: |
+          docker build . --tag ghcr.io/${{ github.repository_owner }}/nodejs-ci-cd:latest
+          docker push ghcr.io/${{ github.repository_owner }}/nodejs-ci-cd:latest
+
+#      - name: Stop and Remove Existing Container on VPS
+#        uses: appleboy/ssh-action@master
+#        with:
+#          host: ${{ secrets.VPS_HOST }}
+#          username: ${{ secrets.VPS_USERNAME }}
+#          password: ${{ secrets.VPS_PASSWORD }}
+#          script: |
+#            # Find and stop the container using port 3000
+#            existing_container_id=$(sudo docker ps -q --filter "publish=3000")
+#            if [ -n "$existing_container_id" ]; then
+#              sudo docker stop $existing_container_id
+#              sudo docker rm $existing_container_id
+#            fi
+#
+#      - name: Deploy to VPS
+#        uses: appleboy/ssh-action@master
+#        with:
+#          host: ${{ secrets.VPS_HOST }}
+#          username: ${{ secrets.VPS_USERNAME }}
+#          password: ${{ secrets.VPS_PASSWORD }}
+#          script: |
+#            sudo docker pull ghcr.io/${{ github.repository }}:latest
+#            sudo docker run -d -p 3000:3000 ghcr.io/${{ github.repository }}:latest
