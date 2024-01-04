@@ -19,7 +19,6 @@ jobs:
       - name: Push Docker image to GitHub Container Registry
         run: |
           echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.repository_owner }} --password-stdin
-          docker build -t ghcr.io/${{ github.repository }}:latest .
           docker push ghcr.io/${{ github.repository }}:latest
 
       - name: Stop and Remove Existing Container on VPS
