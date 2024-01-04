@@ -22,8 +22,11 @@ jobs:
 
       - name: 'Build Inventory Image'
         run: |
-          docker build . --tag ghcr.io/${{ github.repository_owner }}/nodejs-ci-cd:latest
-          docker push ghcr.io/${{ github.repository_owner }}/nodejs-ci-cd:latest
+          docker login ghcr.io -u ${{secrets.YOUR_GITHUB_USERNAME}}  -p ${{secrets.YOUR_PERSONAL_ACCESS_TOKEN}} 
+          docker build -t ghcr.io/${{secrets.YOUR_GITHUB_USERNAME}}/nodejs-ci-cd:latest .
+          docker push ghcr.io/${{secrets.YOUR_GITHUB_USERNAME}}/nodejs-ci-cd:latest
+
+
 
 #      - name: Stop and Remove Existing Container on VPS
 #        uses: appleboy/ssh-action@master
