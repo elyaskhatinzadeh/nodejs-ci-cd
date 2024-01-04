@@ -6,7 +6,7 @@ const port = 3000;
 app.get('/', (req, res) => {
     res.json({
         data:  true,
-        message: 'Hello, welcome to the Node.js API!'
+        message: 'Hello from ghcr, welcome to the Node.js API!'
     });
 });
 
